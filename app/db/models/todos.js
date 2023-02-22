@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     }
     Todos.init(
         {
-            todosName: DataTypes.STRING,
+            name: DataTypes.STRING,
         },
         {
             sequelize,

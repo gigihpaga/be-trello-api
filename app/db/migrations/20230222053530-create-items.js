@@ -14,6 +14,11 @@ module.exports = {
             },
             todoId: {
                 type: Sequelize.INTEGER,
+                // relasi ke table todos
+                references: {
+                    model: 'todos',
+                    key: 'id',
+                },
             },
             createdAt: {
                 allowNull: false,

@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const { getAll, create, getOne, update, destroy } = require('./controller');
 
-router.get('/todos', function (req, res, next) {
-    res.json({ status: 200, message: 'Request in route todos' });
-});
+router.get('/todos', getAll);
+router.post('/todos', create);
+router.get('/todos/:id', getOne);
+router.put('/todos/:id', update);
+router.delete('/todos/:id', destroy);
 
 module.exports = router;

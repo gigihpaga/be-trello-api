@@ -9,6 +9,8 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
+            // 1 todos mempunyai banyak items
+            Todos.hasMany(models.Items);
         }
     }
     Todos.init(

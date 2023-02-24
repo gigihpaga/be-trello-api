@@ -9,7 +9,7 @@ module.exports = {
      * ```
      * setiap data Todos mempunya banyak data Items
      */
-    getAll: async (req, res) => {
+    getAll: async (req, res, next) => {
         try {
             // table Todos
             const result = await Todos.findAll({
@@ -22,16 +22,19 @@ module.exports = {
                 },
             });
             res.status(200).json({
+                ok: true,
                 status: 200,
-                message: 'Success',
-                data: result,
+                statusText: 'OK',
+                message: 'Success get all data',
+                response: { data: result },
             });
         } catch (err) {
-            res.status(500).json({
-                status: 500,
-                message: 'INTERNAL SERVER ERROR',
-            });
-            console.log(err.message);
+            // res.status(500).json({
+            //     status: 500,
+            //     message: 'INTERNAL SERVER ERROR',
+            // });
+            next(err);
+            // console.log(err.message);
         }
     },
     /**
@@ -40,21 +43,19 @@ module.exports = {
      * insert into table.todos (name) values (req.body.name)
      * ```
      */
-    create: async (req, res) => {
+    create: async (req, res, next) => {
         try {
             const { name } = req.body;
             const result = await Todos.create({ name });
             res.status(201).json({
+                ok: true,
                 status: 201,
+                statusText: 'Created',
                 message: 'Success create data',
-                data: { id: result.id, name: result.name },
+                response: { data: { id: result.id, name: result.name } },
             });
         } catch (err) {
-            res.status(500).json({
-                status: 500,
-                message: 'INTERNAL SERVER ERROR',
-            });
-            console.log(err.message);
+            next(err);
         }
     },
     /**
@@ -63,38 +64,36 @@ module.exports = {
      * select [id, name] from table.todos where table.todos.id = req.params.id
      * ```
      */
-    getOne: async (req, res) => {
+    getOne: async (req, res, next) => {
         try {
             const { id } = req.params;
             const result = await Todos.findOne({
                 attributes: ['id', 'name'],
                 where: { id },
             });
-            // console.log('hasil result: ', result?._options.attributes.length);
-            // console.log('hasil result: ', result);
-            if (result) {
+            if (result?._options?.attributes?.length > 0) {
                 // jika ketemu, maka update name berdasarkan id
                 res.status(200).json({
+                    ok: true,
                     status: 200,
-                    message: 'Succes',
-                    data: result,
+                    statusText: 'OK',
+                    message: 'Success get data',
+                    response: { data: result },
                 });
-                console.log('Sukses dapat nama : ', result.name);
             } else {
                 // jika tidak ada data berdasarkan id, maka response 404
-                res.status(200).json({
-                    status: 200,
-                    message: 'Tidak ada data yang ditemukan',
+                res.status(404).json({
+                    ok: false,
+                    status: 404,
+                    statusText: 'Not Found',
+                    // eslint-disable-next-line quotes
+                    message: "Could't find the data according the request",
+                    response: { data: '' },
                 });
-                console.log('Gagal tidak ada data');
                 // throw new Error('Gagal tidak ada data'); // ini contoh untuk melempar error ke catch()
             }
         } catch (err) {
-            res.status(500).json({
-                status: 500,
-                message: 'INTERNAL SERVER ERROR',
-            });
-            console.log(err);
+            next(err);
         }
     },
     /**
@@ -103,7 +102,7 @@ module.exports = {
      * update table.todos set (name = req.body.name) where table.todos.id = req.params.id
      * ```
      */
-    update: async (req, res) => {
+    update: async (req, res, next) => {
         const { id } = req.params;
         const { name } = req.body;
         try {
@@ -115,8 +114,10 @@ module.exports = {
                 .then((todo) => {
                     return todo;
                 })
-                .catch(() => {
-                    return null;
+                .catch((err) => {
+                    // return null;
+                    console.log('ini di catch : ', err.message);
+                    throw new Error(err);
                 });
 
             if (findData) {
@@ -125,29 +126,27 @@ module.exports = {
                     .update({ name })
                     .then(() => {
                         res.status(200).json({
+                            ok: true,
                             status: 200,
+                            statusText: 'OK',
                             message: 'Success update data',
-                            data: findData,
+                            response: { data: findData },
                         });
-                        console.log('Sukses update data : ', findData.name);
                     })
                     .catch((err) => {
-                        throw new Error(`Gagal saat update data, ${err}`);
+                        throw new Error(`Failed when updating data, ${err}`);
                     });
             } else {
                 // jika tidak ada data berdasarkan id, maka response 404
                 res.status(404).json({
+                    ok: false,
                     status: 404,
-                    message: 'Tidak ada data yang diperbarui',
+                    statusText: 'Not Found',
+                    message: 'No data updated',
                 });
-                console.log('Gagal tidak ada');
             }
         } catch (error) {
-            res.status(500).json({
-                status: 500,
-                message: 'INTERNAL SERVER ERROR',
-            });
-            console.log(error);
+            next(error);
         }
     },
     /**
@@ -156,7 +155,7 @@ module.exports = {
      * delete table.todos where table.todos.id = req.params.id
      * ```
      */
-    destroy: async (req, res) => {
+    destroy: async (req, res, next) => {
         const { id } = req.params;
         try {
             // cari berdasarkan id
@@ -167,10 +166,11 @@ module.exports = {
                 .then((todo) => {
                     return todo;
                 })
-                .catch(() => {
-                    return null;
+                .catch((err) => {
+                    // return Promise.reject(new Error(err));
+                    throw new Error(err);
                 });
-            if (findData) {
+            if (findData?._options?.attributes?.length > 0) {
                 // jika ketemu, maka delete data berdasarkan id
                 findData
                     .destroy({
@@ -178,28 +178,27 @@ module.exports = {
                     })
                     .then(() => {
                         res.status(200).json({
+                            ok: true,
                             status: 200,
+                            statusText: 'OK',
                             message: 'Success delete data',
-                            data: findData,
+                            response: { data: findData },
                         });
                     })
                     .catch((err) => {
-                        throw new Error(`Gagal saat delete data, ${err}`);
+                        throw new Error(`Failed when trying to delete data, ${err}`);
                     });
             } else {
                 // jika tidak ada data berdasarkan id, maka response 404
                 res.status(404).json({
+                    ok: false,
                     status: 404,
-                    message: 'Tidak ada data yang di delete',
+                    statusText: 'Not Found',
+                    message: 'No data is deleted',
                 });
-                console.log('Gagal tidak ada');
             }
         } catch (error) {
-            res.status(500).json({
-                status: 500,
-                message: 'INTERNAL SERVER ERROR',
-            });
-            console.log(error);
+            next(error);
         }
     },
 };

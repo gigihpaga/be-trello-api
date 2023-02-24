@@ -3,7 +3,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const URL = '/api/v1'; // start endpoint url, hasilnya localhost: http://localhost:3000/api/v1
+// start endpoint url, hasilnya localhost: http://localhost:3000/api/v1
+const URL = '/api/v1';
 const todosRouter = require('./app/api/todos/rooter');
 
 const app = express();
@@ -20,6 +21,62 @@ app.get('/', function (req, res) {
     });
 });
 
-app.use(`${URL}`, todosRouter); // untuk mengakses todos url endpoint/{namaFolder}, jadi http://localhost:3000/api/v1/todos
+// untuk mengakses todos url endpoint/{namaFolder}, jadi http://localhost:3000/api/v1/todos
+app.use(`${URL}`, todosRouter);
+
+// handle error 404
+app.use(function (req, res, next) {
+    const err = new Error('Unable to fulfill the request');
+    err.ok = false;
+    err.status = 404;
+    err.statusText = 'Not Found';
+    next(err);
+});
+
+// catch undefined errors
+// eslint-disable-next-line no-unused-vars
+app.use(function (err, req, res, next) {
+    // tangkap message error
+    res.locals.message = err.message;
+    // cek env, jika development tampilkan errornya, jika testing || production maka message error tidak ditampilkan
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    const createRes = () => {
+        const ok = err.ok ? err.ok : false;
+        console.log('ok : ', ok);
+        const status = err.status ? err.status : 500;
+        // eslint-disable-next-line prefer-const
+        let statusText =
+            [
+                { stat: 200, statText: 'OK' },
+                { stat: 201, statText: 'Created' },
+                { stat: 400, statText: 'Bad Request' },
+                { stat: 401, statText: 'Unauthorized' },
+                { stat: 403, statText: 'Forbidden' },
+                { stat: 404, statText: 'Not Found' },
+                { stat: 422, statText: 'Unprocessable Entity' },
+                { stat: 500, statText: 'Internal Server Error' },
+                { stat: 502, statText: 'Bad Gateway' },
+            ].find((val) => val.stat === status)?.statText || 'Internal Server Error';
+        console.log('statusText : ', statusText);
+        const message = err.message ? err.message : ''; // string new error taruh disini
+        const responseText = err.responseText ? err.responseText : '';
+        const data = err.data ? err.data : '';
+        return {
+            ok,
+            status,
+            statusText,
+            message,
+            response: {
+                responseText,
+                data,
+            },
+        };
+    };
+
+    res.status(err.status || 500).json(createRes(err));
+    // eslint-disable-next-line no-debugger
+    debugger;
+});
 
 module.exports = app;

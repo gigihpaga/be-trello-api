@@ -6,6 +6,7 @@ const logger = require('morgan');
 // start endpoint url, hasilnya localhost: http://localhost:3000/api/v1
 const URL = '/api/v1';
 const todosRouter = require('./app/api/todos/rooter');
+const itemsRouter = require('./app/api/items/rooter');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.get('/', function (req, res) {
 
 // untuk mengakses todos url endpoint/{namaFolder}, jadi http://localhost:3000/api/v1/todos
 app.use(`${URL}`, todosRouter);
+app.use(`${URL}`, itemsRouter);
 
 // handle error 404
 app.use(function (req, res, next) {
@@ -43,7 +45,7 @@ app.use(function (err, req, res, next) {
 
     const createRes = () => {
         const ok = err.ok ? err.ok : false;
-        console.log('ok : ', ok);
+        // console.log('ok : ', ok);
         const status = err.status ? err.status : 500;
         // eslint-disable-next-line prefer-const
         let statusText =
@@ -58,8 +60,8 @@ app.use(function (err, req, res, next) {
                 { stat: 500, statText: 'Internal Server Error' },
                 { stat: 502, statText: 'Bad Gateway' },
             ].find((val) => val.stat === status)?.statText || 'Internal Server Error';
-        console.log('statusText : ', statusText);
         const message = err.message ? err.message : ''; // string new error taruh disini
+        console.log('On App message : ', message);
         const responseText = err.responseText ? err.responseText : '';
         const data = err.data ? err.data : '';
         return {

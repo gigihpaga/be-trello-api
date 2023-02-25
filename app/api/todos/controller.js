@@ -93,6 +93,7 @@ module.exports = {
                 // throw new Error('Gagal tidak ada data'); // ini contoh untuk melempar error ke catch()
             }
         } catch (err) {
+            console.log('On Controller getOne catch message : ', err.message);
             next(err);
         }
     },
@@ -116,11 +117,11 @@ module.exports = {
                 })
                 .catch((err) => {
                     // return null;
-                    console.log('ini di catch : ', err.message);
-                    throw new Error(err);
+                    // console.log('on Controller update catch : ', err);
+                    throw new Error(err.message);
                 });
 
-            if (findData) {
+            if (findData?._options?.attributes?.length > 0) {
                 // jika ketemu, maka update name berdasarkan id
                 findData
                     .update({ name })
@@ -146,6 +147,10 @@ module.exports = {
                 });
             }
         } catch (error) {
+            // let { message } = error;
+            // message = 'test kesini';
+            // next({ message });
+
             next(error);
         }
     },
@@ -168,7 +173,7 @@ module.exports = {
                 })
                 .catch((err) => {
                     // return Promise.reject(new Error(err));
-                    throw new Error(err);
+                    throw new Error(err.message);
                 });
             if (findData?._options?.attributes?.length > 0) {
                 // jika ketemu, maka delete data berdasarkan id
@@ -186,7 +191,21 @@ module.exports = {
                         });
                     })
                     .catch((err) => {
-                        throw new Error(`Failed when trying to delete data, ${err}`);
+                        // return Promise.reject(new Error(err)); // kalo pake ini, fatal error gak ketangkep
+                        // throw new Error(`Failed when trying to delete data, ${err}`); // kalo pake ini, fatal error gak ketangkep
+                        // return res.status(500).send(err.message); // pake ini bisa ketangkep errornya. tapi tidak bisa dijadikan JSON
+                        /**
+                         * next(err);
+                         * pake method next() solusi paling mantap,
+                         * dalam kasus ini kalo next(err) dan yang di lempar "err"... terlalu detail pesan errornya sampe keliatan nama table DB nya.
+                         * karena posisi catch ini terlalu specific saat delete DB
+                         * jadi method next di express ini gunanya saat ada error dia tidak berhenti disini.
+                         * method next di gunakan untuk meneruskan pembacaan code program, jadi error ini akan di lempar ke file app.js dan masuk ke middleware, jadi errornya ketangkep
+                         * agar info sensitif db tidak terlihat, dicustom saja messagenya 🤣 🐵
+                         */
+                        let { message } = err;
+                        message = 'Something went wrong, there was an error deleting data';
+                        next({ message });
                     });
             } else {
                 // jika tidak ada data berdasarkan id, maka response 404

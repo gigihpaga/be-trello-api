@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const cors = require('cors');
 
 // start endpoint url, hasilnya localhost: http://localhost:3000/api/v1
 const URL = '/api/v1';
@@ -15,6 +16,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
+/** app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Method', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type', 'Authorization');
+    next();
+}); */
 app.get('/', function (req, res) {
     res.json({
         message: 'Welcome to api clone trello',

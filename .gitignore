@@ -149,3 +149,4 @@ dist_dev
 # catatan
 .be-trello-api-planning.js
 dummyDataForViewOnly.json
+*.sql

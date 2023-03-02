@@ -86,7 +86,7 @@ app.use(function (err, req, res, next) {
 
     res.status(err.status || 500).json(createRes(err));
     // eslint-disable-next-line no-debugger
-    debugger;
+    // debugger;
 });
 
 module.exports = app;

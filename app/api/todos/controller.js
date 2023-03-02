@@ -14,7 +14,7 @@ module.exports = {
             // table Todos
             const result = await Todos.findAll({
                 // memilih attribute apa saja yang perlud ditampilkan
-                attributes: ['id', 'name'],
+                // attributes: ['id', 'name'],
                 // join ke table Items
                 include: {
                     model: Items,

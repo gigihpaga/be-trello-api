@@ -1,5 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/node
 # Edit at https://www.toptal.com/developers/gitignore?templates=node
+#Git Ignore
+.gitignore
 
 ### Node ###
 # Logs
@@ -133,8 +135,9 @@ dist
 .pnp.*
 
 ### Node Patch ###
-# Serverless Webpack directories
+# Serverless Webpack directories || build / generate output
 .webpack/
+dist_dev
 
 # Optional stylelint cache
 
@@ -142,3 +145,7 @@ dist
 .svelte-kit
 
 # End of https://www.toptal.com/developers/gitignore/api/node
+
+# catatan
+.be-trello-api-planning.js
+dummyDataForViewOnly.json

@@ -21,7 +21,7 @@ module.exports = {
             ssl: { rejectUnauthorized: false },
         },
         define: {
-            timestamps: false,
+            timestamps: true,
         },
     },
 };

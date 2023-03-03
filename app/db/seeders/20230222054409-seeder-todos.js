@@ -21,9 +21,14 @@ module.exports = {
                     updatedAt: '2023-12-02 02:47:19',
                 },
                 {
-                    name: 'Pengawas Kualitas',
+                    name: 'Quality Control',
                     createdAt: '2022-01-10 17:36:14',
                     updatedAt: new Date(),
+                },
+                {
+                    name: 'Pengembangan Proyek',
+                    createdAt: '2023-07-26T16:08:11.000Z',
+                    updatedAt: '2023-02-22T10:41:51.000Z',
                 },
             ],
 
